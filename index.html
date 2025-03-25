@@ -9,43 +9,44 @@
 </head>
 <body>
   <h1>إنشاء معايدة عيد الفطر 2025</h1>
+  <!-- نص إضافي للمستخدم -->
+  <p class="instruction">اختر القالب المناسب</p>
   
   <!-- قسم اختيار القالب -->
   <div id="template-selection">
-    <!-- تم تعديل مسار الصور ليشير إلى مجلد images -->
     <img src="images/3.png" alt="قالب 1" class="template-option" onclick="selectTemplate('images/3.png')">
     <img src="images/5.png" alt="قالب 2" class="template-option" onclick="selectTemplate('images/5.png')">
     <img src="images/7.png" alt="قالب 3" class="template-option" onclick="selectTemplate('images/7.png')">
-    <img src="images/8.png" alt="قالب 4" class="template-option" onclick="selectTemplate('images/8.png')">
-    <img src="images/9.png" alt="قالب 5" class="template-option" onclick="selectTemplate('images/9.png')">
+    <!-- يمكنك إضافة المزيد من الصور هنا -->
   </div>
   
   <!-- قسم التعديل على المعايدة -->
   <div id="editor">
     <div class="template-container" id="canvas-container">
       <img id="template-image" src="" alt="القالب">
-      <!-- عنصر النص القابل للتحرير -->
+      <!-- عنصر النص القابل للتحرير مع تلميح للسحب -->
       <div id="text-element" class="draggable" contenteditable="true" style="top:50px; left:50px; font-size:24px; color:#000;">
         أدخل اسمك هنا
       </div>
+      <span class="mobile-hint">يمكنك سحب النص لوضعه في المكان المناسب</span>
       <!-- صورة المستخدم المرفوعة (تظهر داخل دائرة) -->
       <img id="user-image" src="" alt="صورة المستخدم" class="draggable circular-image" style="display:none; width:100px; height:100px; top:100px; left:100px;">
     </div>
     <div class="controls">
-      <div>
+      <div class="control-group">
         <label>أدخل النص:</label>
         <input type="text" id="user-text" placeholder="أدخل اسمك أو نص المعايدة">
         <button onclick="updateText()">تطبيق</button>
       </div>
-      <div>
+      <div class="control-group">
         <label>حجم الخط:</label>
         <input type="range" id="font-size" min="16" max="72" value="24" onchange="updateFontSize(this.value)">
       </div>
-      <div>
+      <div class="control-group">
         <label>لون الخط:</label>
         <input type="color" id="font-color" value="#000000" onchange="updateFontColor(this.value)">
       </div>
-      <div>
+      <div class="control-group">
         <label>نوع الخط:</label>
         <select id="font-type" onchange="updateFontType(this.value)">
           <option value="Arial">Arial</option>
@@ -53,20 +54,32 @@
           <option value="Times New Roman">Times New Roman</option>
           <option value="'Amiri', serif">أميري</option>
           <option value="'Cairo', sans-serif">Cairo</option>
-          <option value="'Changa', sans-serif">Changa</option>
-          <option value="'Lateef', cursive">Lateef</option>
-          <option value="'Reem Kufi', sans-serif">Reem Kufi</option>
-          <option value="'Scheherazade', serif">Scheherazade</option>
-          <option value="'Noto Naskh Arabic', serif">Noto Naskh Arabic</option>
+          <option value="'Ruqaa', sans-serif">الرقعة</option>
+          <option value="'Diwan', serif">خط الديوان</option>
+          <option value="'Traditional Arabic', serif">الخط التقليدي</option>
         </select>
       </div>
-      <div>
+      <div class="control-group">
         <label>رفع صورة (اختياري):</label>
         <input type="file" id="image-upload" accept="image/*" onchange="uploadUserImage(event)">
       </div>
-      <div>
+      <!-- إضافة تحكم تكبير/تصغير الصورة -->
+      <div class="control-group">
+        <label>تكبير الصورة:</label>
+        <input type="range" id="image-zoom" min="0.5" max="2" step="0.1" value="1" onchange="updateImageZoom(this.value)">
+      </div>
+      <div class="control-group buttons-group">
         <button onclick="downloadImage()">تحميل المعايدة</button>
         <button onclick="shareImage()">مشاركة المعايدة</button>
+        <!-- زر العودة للصفحة الرئيسية -->
+        <button onclick="goHome()">الصفحة الرئيسية</button>
+      </div>
+      <!-- خيارات المشاركة على وسائل التواصل -->
+      <div id="share-buttons" class="control-group">
+        <button onclick="shareWhatsApp()">مشاركة على واتساب</button>
+        <button onclick="shareInstagram()">مشاركة على إنستقرام</button>
+        <button onclick="shareSnapchat()">مشاركة على سناب شات</button>
+        <button onclick="shareFacebook()">مشاركة على فيسبوك</button>
       </div>
     </div>
   </div>
@@ -77,4 +90,3 @@
   <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 </body>
 </html>
-
