@@ -1,1 +1,78 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>معايدة عيد الفطر 2025</title>
+  <!-- ربط ملف التنسيق -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>إنشاء معايدة عيد الفطر 2025</h1>
+  
+  <!-- قسم اختيار القالب -->
+  <div id="template-selection">
+    <!-- تم تعديل مسار الصور ليشير إلى مجلد images -->
+    <img src="images/3.png" alt="قالب 1" class="template-option" onclick="selectTemplate('images/3.png')">
+    <img src="images/5.png" alt="قالب 2" class="template-option" onclick="selectTemplate('images/5.png')">
+    <img src="images/7.png" alt="قالب 3" class="template-option" onclick="selectTemplate('images/7.png')">
+  </div>
+  
+  <!-- قسم التعديل على المعايدة -->
+  <div id="editor">
+    <div class="template-container" id="canvas-container">
+      <img id="template-image" src="" alt="القالب">
+      <!-- عنصر النص القابل للتحرير -->
+      <div id="text-element" class="draggable" contenteditable="true" style="top:50px; left:50px; font-size:24px; color:#000;">
+        أدخل اسمك هنا
+      </div>
+      <!-- صورة المستخدم المرفوعة (تظهر داخل دائرة) -->
+      <img id="user-image" src="" alt="صورة المستخدم" class="draggable circular-image" style="display:none; width:100px; height:100px; top:100px; left:100px;">
+    </div>
+    <div class="controls">
+      <div>
+        <label>أدخل النص:</label>
+        <input type="text" id="user-text" placeholder="أدخل اسمك أو نص المعايدة">
+        <button onclick="updateText()">تطبيق</button>
+      </div>
+      <div>
+        <label>حجم الخط:</label>
+        <input type="range" id="font-size" min="16" max="72" value="24" onchange="updateFontSize(this.value)">
+      </div>
+      <div>
+        <label>لون الخط:</label>
+        <input type="color" id="font-color" value="#000000" onchange="updateFontColor(this.value)">
+      </div>
+      <div>
+        <label>نوع الخط:</label>
+        <select id="font-type" onchange="updateFontType(this.value)">
+          <option value="Arial">Arial</option>
+          <option value="Tahoma">Tahoma</option>
+          <option value="Times New Roman">Times New Roman</option>
+          <option value="'Amiri', serif">أميري</option>
+          <option value="'Cairo', sans-serif">Cairo</option>
+          <option value="'Changa', sans-serif">Changa</option>
+          <option value="'Lateef', cursive">Lateef</option>
+          <option value="'Reem Kufi', sans-serif">Reem Kufi</option>
+          <option value="'Scheherazade', serif">Scheherazade</option>
+          <option value="'Noto Naskh Arabic', serif">Noto Naskh Arabic</option>
+        </select>
+      </div>
+      <div>
+        <label>رفع صورة (اختياري):</label>
+        <input type="file" id="image-upload" accept="image/*" onchange="uploadUserImage(event)">
+      </div>
+      <div>
+        <button onclick="downloadImage()">تحميل المعايدة</button>
+        <button onclick="shareImage()">مشاركة المعايدة</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- ربط ملف الجافاسكريبت -->
+  <script src="script.js"></script>
+  <!-- تضمين مكتبة html2canvas لالتقاط المحتوى كصورة -->
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+</body>
+</html>
 
