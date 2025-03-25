@@ -1,101 +1,84 @@
+let selectedTemplate = "";
+// اختيار القالب وعرض قسم التعديل
+function selectTemplate(templateSrc) {
+  selectedTemplate = templateSrc;
+  document.getElementById("template-image").src = templateSrc;
+  document.getElementById("template-selection").style.display = "none";
+  document.getElementById("editor").style.display = "block";
+}
+// تحديث النص المعروض على القالب
+function updateText() {
+  const text = document.getElementById("user-text").value;
+  document.getElementById("text-element").innerText = text;
+}
+// تغيير حجم الخط
+function updateFontSize(size) {
+  document.getElementById("text-element").style.fontSize = size + "px";
+}
+// تغيير لون الخط
+function updateFontColor(color) {
+  document.getElementById("text-element").style.color = color;
+}
+// تغيير نوع الخط
+function updateFontType(font) {
+  document.getElementById("text-element").style.fontFamily = font;
+}
+// جعل العناصر قابلة للسحب
+function makeDraggable(el) {
+  el.onmousedown = function(event) {
+    let shiftX = event.clientX - el.getBoundingClientRect().left;
+    let shiftY = event.clientY - el.getBoundingClientRect().top;
 
-body {
-  font-family: 'Cairo', sans-serif;
-  direction: rtl;
-  text-align: center;
-  margin: 0;
-  padding: 0;
-  background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+    function moveAt(pageX, pageY) {
+      el.style.left = pageX - shiftX - el.parentElement.getBoundingClientRect().left + "px";
+      el.style.top = pageY - shiftY - el.parentElement.getBoundingClientRect().top + "px";
+    }
+
+    function onMouseMove(event) {
+      moveAt(event.pageX, event.pageY);
+    }
+
+    document.addEventListener('mousemove', onMouseMove);
+
+    document.onmouseup = function() {
+      document.removeEventListener('mousemove', onMouseMove);
+      el.onmouseup = null;
+    };
+  };
+  el.ondragstart = function() {
+    return false;
+  };
 }
-h1 {
-  margin-top: 20px;
-  color: #333;
+// تفعيل إمكانية السحب للنص والصورة عند تحميل الصفحة
+window.onload = function() {
+  makeDraggable(document.getElementById("text-element"));
+  makeDraggable(document.getElementById("user-image"));
+};
+// رفع صورة المستخدم وعرضها داخل دائرة
+function uploadUserImage(event) {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      let userImage = document.getElementById("user-image");
+      userImage.src = e.target.result;
+      userImage.style.display = "block";
+    }
+    reader.readAsDataURL(file);
+  }
 }
-#template-selection {
-  margin: 20px auto;
-  max-width: 850px;
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  flex-wrap: wrap;
+// تحميل الصورة المجمعة للمعايدة باستخدام html2canvas
+function downloadImage() {
+  let container = document.getElementById("canvas-container");
+  html2canvas(container).then(canvas => {
+    let link = document.createElement("a");
+    link.download = "معايدة_عيد_الفطر_2025.png";
+    link.href = canvas.toDataURL();
+    link.click();
+  });
 }
-.template-option {
-  width: 250px;
-  border: 3px solid transparent;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  cursor: pointer;
-  transition: transform 0.3s, border 0.3s;
-}
-.template-option:hover {
-  transform: scale(1.05);
-  border: 3px solid #3498db;
-}
-#editor {
-  display: none;
-  margin-bottom: 30px;
-}
-.template-container {
-  position: relative;
-  width: 800px;
-  margin: 20px auto;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-}
-.template-container img {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-.draggable {
-  position: absolute;
-  cursor: move;
-  user-select: none;
-  transition: all 0.2s ease-in-out;
-}
-.draggable:hover {
-  transform: scale(1.05);
-}
-.circular-image {
-  border-radius: 50%;
-  object-fit: cover;
-}
-.controls {
-  margin: 20px auto;
-  max-width: 800px;
-  background: #fff;
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-.controls label {
-  margin-right: 5px;
-  font-weight: bold;
-}
-.controls input[type="text"],
-.controls select,
-.controls input[type="file"] {
-  padding: 5px;
-  margin: 10px 0;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-.controls input[type="range"],
-.controls input[type="color"] {
-  margin: 10px;
-}
-.controls button {
-  margin: 10px;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  background: #3498db;
-  color: #fff;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-.controls button:hover {
-  background: #2980b9;
+// مشاركة المعايدة (مثال توضيحي)
+function shareImage() {
+  downloadImage();
+  alert("تم إنشاء الصورة، قم بمشاركتها عبر وسائل التواصل الاجتماعي");
 }
