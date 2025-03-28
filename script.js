@@ -35,27 +35,31 @@ function updateFontType(font) {
   document.getElementById("text-element").style.fontFamily = font;
 }
 
-// تحديث تكبير/تصغير الصورة
+// -----------------------------------------------------------------------------------
+// التعامل مع تكبير/تصغير الصورة (قبل/بعد التأكيد)
+let currentZoom = 1;
+
 function updateImageZoom(zoomValue) {
   currentZoom = zoomValue;
   if (!imageConfirmed) {
-    // قبل التأكيد، تعديل الصورة الداخلية فقط
+    // قبل التأكيد، نعدّل الصورة الداخلية فقط
     const userImageInner = document.getElementById("user-image-inner");
     userImageInner.style.transform = `translate(${imageOffsetX}px, ${imageOffsetY}px) scale(${zoomValue})`;
   } else {
-    // بعد التأكيد، تكبير/تصغير الحاوية الدائرية ككل
+    // بعد التأكيد، نعدّل الحاوية الدائرية ككل
     const container = document.getElementById("image-crop-container");
     container.style.transform = `scale(${zoomValue})`;
   }
 }
 
-// جعل العناصر قابلة للسحب (النص أو الحاوية قبل التأكيد)
+// -----------------------------------------------------------------------------------
+// جعل العناصر قابلة للسحب (للنص أو للحاوية بعد التأكيد)
 function makeDraggable(el) {
   let isDragging = false;
   let offsetX = 0;
   let offsetY = 0;
 
-  // للماوس
+  // أحداث الماوس
   el.addEventListener('mousedown', function(e) {
     e.preventDefault();
     isDragging = true;
@@ -77,7 +81,7 @@ function makeDraggable(el) {
     isDragging = false;
   });
 
-  // للأجهزة اللمسية
+  // أحداث اللمس
   el.addEventListener('touchstart', function(e) {
     e.preventDefault();
     isDragging = true;
@@ -102,19 +106,20 @@ function makeDraggable(el) {
   }, { passive: false });
 }
 
-// دعم سحب النص عند تحميل الصفحة
+// -----------------------------------------------------------------------------------
+// تفعيل سحب النص عند تحميل الصفحة
 window.onload = function() {
   makeDraggable(document.getElementById("text-element"));
 };
 
-// آلية سحب الصورة داخل الإطار الدائري (قبل التأكيد)
+// -----------------------------------------------------------------------------------
+// سحب الصورة داخل الإطار الدائري قبل التأكيد
 let isDraggingImage = false;
 let imageOffsetX = 0;
 let imageOffsetY = 0;
-let currentZoom = 1;
 
 function makeInnerImageDraggable(img) {
-  // للماوس
+  // أحداث الماوس
   img.addEventListener('mousedown', function(e) {
     if (imageConfirmed) return; // منع السحب بعد التأكيد
     e.preventDefault();
@@ -123,8 +128,7 @@ function makeInnerImageDraggable(img) {
   });
 
   document.addEventListener('mousemove', function(e) {
-    if (!isDraggingImage) return;
-    if (imageConfirmed) return;
+    if (!isDraggingImage || imageConfirmed) return;
     e.preventDefault();
     moveDrag(e.clientX, e.clientY);
   });
@@ -133,7 +137,7 @@ function makeInnerImageDraggable(img) {
     isDraggingImage = false;
   });
 
-  // للأجهزة اللمسية
+  // أحداث اللمس
   img.addEventListener('touchstart', function(e) {
     if (imageConfirmed) return;
     e.preventDefault();
@@ -143,8 +147,7 @@ function makeInnerImageDraggable(img) {
   }, { passive: false });
 
   img.addEventListener('touchmove', function(e) {
-    if (!isDraggingImage) return;
-    if (imageConfirmed) return;
+    if (!isDraggingImage || imageConfirmed) return;
     e.preventDefault();
     let touch = e.touches[0];
     moveDrag(touch.clientX, touch.clientY);
@@ -160,19 +163,21 @@ function startDrag(clientX, clientY) {
   startX = clientX;
   startY = clientY;
 }
+
 function moveDrag(clientX, clientY) {
   let dx = clientX - startX;
   let dy = clientY - startY;
   startX = clientX;
   startY = clientY;
-  
+
   imageOffsetX += dx;
   imageOffsetY += dy;
-  
+
   const img = document.getElementById("user-image-inner");
   img.style.transform = `translate(${imageOffsetX}px, ${imageOffsetY}px) scale(${currentZoom})`;
 }
 
+// -----------------------------------------------------------------------------------
 // رفع صورة المستخدم وعرضها داخل الإطار الدائري
 function uploadUserImage(event) {
   const file = event.target.files[0];
@@ -181,20 +186,20 @@ function uploadUserImage(event) {
     reader.onload = function(e) {
       let container = document.getElementById("image-crop-container");
       let userImageInner = document.getElementById("user-image-inner");
-      
+
       userImageInner.src = e.target.result;
       container.style.display = "block";
-      
+
       // إعادة القيم الافتراضية
       document.getElementById("image-zoom").value = 1;
       imageOffsetX = 0;
       imageOffsetY = 0;
       currentZoom = 1;
       userImageInner.style.transform = "translate(0,0) scale(1)";
-      
+
       // إظهار زر "تم"
       document.getElementById("confirm-image-group").style.display = "block";
-      
+
       // جعل الصورة الداخلية قابلة للسحب داخل الإطار
       makeInnerImageDraggable(userImageInner);
     }
@@ -202,73 +207,98 @@ function uploadUserImage(event) {
   }
 }
 
+// -----------------------------------------------------------------------------------
 // عند الضغط على زر "تم" لإقرار موضع الصورة
 function confirmImagePosition() {
-  // إخفاء زر "تم"
-  document.getElementById("confirm-image-group").style.display = "none";
+  document.getElementById("confirm-image-group").style.display = "none"; // إخفاء زر "تم"
   let container = document.getElementById("image-crop-container");
-  // إزالة الإطار الأبيض من الحاوية بعد التأكيد
-  container.style.border = "none";
+  container.style.border = "none"; // إزالة الإطار الأبيض من الحاوية بعد التأكيد
+
   imageConfirmed = true;
   // تعطيل سحب الصورة الداخلية بعد التأكيد
   document.getElementById("user-image-inner").style.pointerEvents = "none";
+
   // تمكين سحب الحاوية الدائرية ككل داخل القالب
   makeDraggable(container);
 }
 
-// تحميل الصورة المجمعة للمعايدة باستخدام html2canvas مع إعادة رسم المنطقة الدائرية
+// -----------------------------------------------------------------------------------
+// تحميل الصورة المجمعة للمعايدة باستخدام html2canvas
+// مع إعادة رسم المنطقة الدائرية بضبط موضعها وأبعادها بناءً على معامل التحجيم
 function downloadImage() {
   // إخفاء تلميح السحب قبل الالتقاط
   let mobileHint = document.querySelector('.mobile-hint');
   let originalDisplay = mobileHint.style.display;
   mobileHint.style.display = "none";
-  
+
   let container = document.getElementById("canvas-container");
   html2canvas(container).then(canvas => {
-    let width = canvas.width;
-    let height = canvas.height;
-    
-    // استخدام offsetLeft/Top/Width للحصول على موقع وحجم الحاوية الدائرية بالنسبة لـ canvas-container
+    let containerRect = container.getBoundingClientRect();
+
+    // أبعاد الـ canvas التي أُنشئت من html2canvas (قد تكون أكبر بسبب devicePixelRatio)
+    let cWidth = canvas.width;
+    let cHeight = canvas.height;
+
+    // حساب معامل التحجيم (scale) بين حجم العنصر الفعلي وحجم الـ canvas
+    let scaleX = cWidth / containerRect.width;
+    let scaleY = cHeight / containerRect.height;
+
+    // الحصول على معلومات الحاوية الدائرية
     let circElement = document.getElementById("image-crop-container");
-    let relX = circElement.offsetLeft;
-    let relY = circElement.offsetTop;
-    let relWidth = circElement.offsetWidth;
-    
+    let circRect = circElement.getBoundingClientRect();
+
+    // حساب موضع الحاوية الدائرية على الـ canvas
+    // (استخدام الفرق بين إحداثيات الحاوية والديف الرئيسي، مع ضربها في معامل التحجيم)
+    let relX = (circRect.left - containerRect.left) * scaleX;
+    let relY = (circRect.top - containerRect.top) * scaleY;
+    let relWidth = circRect.width * scaleX; // يفترض أن العرض = الارتفاع
+
     // إنشاء canvas مؤقتة
     let tempCanvas = document.createElement('canvas');
-    tempCanvas.width = width;
-    tempCanvas.height = height;
+    tempCanvas.width = cWidth;
+    tempCanvas.height = cHeight;
     let tempCtx = tempCanvas.getContext('2d');
-    
+
     // رسم الصورة الكاملة كما هي
     tempCtx.drawImage(canvas, 0, 0);
-    
-    // إنشاء canvas للمجال الدائري
+
+    // إنشاء canvas للدائرة
     let circCanvas = document.createElement('canvas');
     circCanvas.width = relWidth;
     circCanvas.height = relWidth;
     let circCtx = circCanvas.getContext('2d');
+
+    // إنشاء قناع دائري
     circCtx.beginPath();
     circCtx.arc(relWidth/2, relWidth/2, relWidth/2, 0, Math.PI * 2, true);
     circCtx.closePath();
     circCtx.clip();
+
     // رسم الجزء الخاص بالحاوية الدائرية من الصورة الأصلية
-    circCtx.drawImage(canvas, relX, relY, relWidth, relWidth, 0, 0, relWidth, relWidth);
-    
+    circCtx.drawImage(
+      canvas,
+      relX, relY,       // موضع البداية في الصورة الأصل
+      relWidth, relWidth, // حجم الجزء المقتطع من الصورة
+      0, 0,             // موضع البداية على circCanvas
+      relWidth, relWidth // حجم الرسم على circCanvas
+    );
+
     // استبدال المنطقة الدائرية في tempCanvas بالصورة الدائرية
     tempCtx.clearRect(relX, relY, relWidth, relWidth);
     tempCtx.drawImage(circCanvas, relX, relY);
-    
+
+    // تحويل النتيجة إلى رابط تحميل
     let link = document.createElement("a");
     link.download = "معايدة_عيد_الفطر_2025.png";
     link.href = tempCanvas.toDataURL();
     link.click();
-    
+
     // استعادة تلميح السحب بعد الالتقاط
     mobileHint.style.display = originalDisplay;
   });
 }
 
+// -----------------------------------------------------------------------------------
 // مشاركة المعايدة: مشاركة الصورة النهائية نفسها باستخدام Web Share API (إذا كانت مدعومة)
 function shareImage() {
   html2canvas(document.getElementById("canvas-container")).then(canvas => {
@@ -288,6 +318,7 @@ function shareImage() {
   });
 }
 
+// -----------------------------------------------------------------------------------
 // وظائف المشاركة على وسائل التواصل (في حال عدم دعم Web Share API)
 function shareWhatsApp() {
   const url = encodeURIComponent(window.location.href);
