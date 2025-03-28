@@ -171,6 +171,15 @@ h1 {
   border: none;
 }
 
+/* تلميح السحب (مخصص للنص والصورة) */
+.mobile-hint {
+  color: red;
+  font-size: 12px;
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+}
+
 /* الحاوية الدائرية للصورة */
 .circular-container {
   position: absolute;
@@ -178,11 +187,11 @@ h1 {
   height: 150px;
   border-radius: 50%;
   overflow: hidden;
-  /* سيتم إزالة الإطار الأبيض بعد التأكيد */
+  /* يتم إزالة الإطار الأبيض بعد تأكيد الصورة */
   border: 2px solid #fff;
 }
 
-/* الصورة الداخلية القابلة للتحريك داخل الحاوية */
+/* الصورة الداخلية داخل الحاوية */
 .user-image-inner {
   position: absolute;
   top: 0;
@@ -253,16 +262,6 @@ h1 {
 
 #share-buttons button:hover {
   background: #27ae60;
-}
-
-/* تلميح المستخدم على الجوال */
-.mobile-hint {
-  display: none;
-  font-size: 12px;
-  color: #888;
-  position: absolute;
-  bottom: 5px;
-  right: 5px;
 }
 
 /* قسم الفوتر */
