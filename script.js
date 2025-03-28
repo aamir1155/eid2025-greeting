@@ -122,26 +122,11 @@ function uploadUserImage(event) {
     reader.onload = e => {
       const img = new Image();
       img.onload = () => {
-        const size = Math.min(img.width, img.height);
-        const canvas = document.createElement('canvas');
-        canvas.width = canvas.height = size;
-
-        const ctx = canvas.getContext('2d');
-        ctx.beginPath();
-        ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
-        ctx.clip();
-
-        ctx.drawImage(img, (img.width - size) / 2, (img.height - size) / 2, size, size, 0, 0, size, size);
-
-        const dataURL = canvas.toDataURL();
-
-        document.getElementById("user-image-inner").src = dataURL;
+        document.getElementById("user-image-inner").src = e.target.result;
         document.getElementById("image-crop-container").style.display = "block";
-
+        document.getElementById("confirm-image-group").style.display = "block";
         document.getElementById("image-zoom").value = currentZoom = 1;
         imageOffsetX = imageOffsetY = 0;
-
-        document.getElementById("confirm-image-group").style.display = "block";
         makeInnerImageDraggable(document.getElementById("user-image-inner"));
       };
       img.src = e.target.result;
@@ -151,9 +136,22 @@ function uploadUserImage(event) {
 }
 
 function confirmImagePosition() {
-  document.getElementById("confirm-image-group").style.display = "none";
-  document.getElementById("image-crop-container").style.border = "none";
-  imageConfirmed = true;
-  document.getElementById("user-image-inner").style.pointerEvents = "none";
-  makeDraggable(document.getElementById("image-crop-container"));
+  const container = document.getElementById("image-crop-container");
+  html2canvas(container, { backgroundColor: null }).then(canvas => {
+    const ctx = canvas.getContext('2d');
+    const size = canvas.width;
+    ctx.globalCompositeOperation = 'destination-in';
+    ctx.beginPath();
+    ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+    ctx.closePath();
+    ctx.fill();
+
+    const dataURL = canvas.toDataURL();
+    document.getElementById("user-image-inner").src = dataURL;
+    imageConfirmed = true;
+    document.getElementById("confirm-image-group").style.display = "none";
+    container.style.border = "none";
+    document.getElementById("user-image-inner").style.pointerEvents = "none";
+    makeDraggable(container);
+  });
 }
