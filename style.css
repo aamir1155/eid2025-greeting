@@ -1,3 +1,93 @@
+/* =======================
+   تعريف الخطوط المخصصة
+   ======================= */
+
+/* الدفعة الأولى */
+@font-face {
+  font-family: 'SadokartBold';
+  src: url('fonts/19720-sadokartbold_3.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'AbdoFree';
+  src: url('fonts/abdo-free-1.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'ALMohanadBold';
+  src: url('fonts/AL-Mohanad-Bold-1.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'AlsamtDiwani';
+  src: url('fonts/alsamt diwani.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'AlSharkTitleLight';
+  src: url('fonts/AlSharkTitle-Light.otf') format('opentype');
+}
+
+@font-face {
+  font-family: 'ArefRuqaaBold';
+  src: url('fonts/ArefRuqaa-Bold.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'ArefRuqaaRegular';
+  src: url('fonts/ArefRuqaa-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'BArshia';
+  src: url('fonts/B-Arshia-1.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'DiwanyEdited';
+  src: url('fonts/diwany-edited.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'HSNLayan';
+  src: url('fonts/HSN Layan.ttf') format('truetype');
+}
+
+/* الدفعة الثانية */
+@font-face {
+  font-family: 'KhalaadAlArabeh';
+  src: url('fonts/khalaad-al-arabeh.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Mohareb';
+  src: url('fonts/Mohareb 1.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Rakkas';
+  src: url('fonts/Rakkas-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'ReemKufiVariable';
+  src: url('fonts/ReemKufi-VariableFont_wght.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'SKRHEAD2Outlined';
+  src: url('fonts/SKR-HEAD2-Outlined.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'SultanFree';
+  src: url('fonts/sultan - free.ttf') format('truetype');
+}
+
+/* =======================
+   تنسيق الصفحة العامة
+   ======================= */
+
 body {
   font-family: 'Cairo', sans-serif;
   direction: rtl;
@@ -6,15 +96,19 @@ body {
   padding: 0;
   background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
 }
+
 h1 {
   margin-top: 20px;
   color: #333;
 }
+
 .instruction {
   font-size: 18px;
   color: #555;
   margin-bottom: 10px;
 }
+
+/* قسم اختيار القالب */
 #template-selection {
   margin: 20px auto;
   max-width: 850px;
@@ -23,6 +117,7 @@ h1 {
   gap: 15px;
   flex-wrap: wrap;
 }
+
 .template-option {
   width: 250px;
   border: 3px solid transparent;
@@ -31,14 +126,18 @@ h1 {
   cursor: pointer;
   transition: transform 0.3s, border 0.3s;
 }
+
 .template-option:hover {
   transform: scale(1.05);
   border: 3px solid #3498db;
 }
+
+/* محرر المعايدة */
 #editor {
   display: none;
   margin-bottom: 30px;
 }
+
 .template-container {
   position: relative;
   width: 800px;
@@ -47,11 +146,14 @@ h1 {
   overflow: hidden;
   box-shadow: 0 8px 16px rgba(0,0,0,0.2);
 }
+
 .template-container img {
   width: 100%;
   height: auto;
   display: block;
 }
+
+/* العناصر القابلة للسحب */
 .draggable {
   position: absolute;
   cursor: move;
@@ -61,11 +163,34 @@ h1 {
 .draggable:hover {
   transform: scale(1.05);
 }
-.circular-image {
-  border-radius: 50%;
-  object-fit: cover;
-  transition: transform 0.2s ease-in-out;
+
+/* تنسيق النص القابل للسحب */
+.text-draggable {
+  background-color: rgba(255,255,255,0.3);
+  padding: 5px;
+  border-radius: 5px;
 }
+
+/* الحاوية الدائرية للصورة */
+.circular-container {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  border: 2px solid #fff;
+}
+
+/* الصورة الداخلية القابلة للتحريك داخل الحاوية */
+.user-image-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translate(0,0) scale(1);
+}
+
+/* لوحة التحكم */
 .controls {
   margin: 20px auto;
   max-width: 800px;
@@ -74,13 +199,16 @@ h1 {
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
+
 .control-group {
   margin: 10px 0;
 }
+
 .control-group label {
   margin-right: 5px;
   font-weight: bold;
 }
+
 .control-group input[type="text"],
 .control-group select,
 .control-group input[type="file"] {
@@ -89,10 +217,12 @@ h1 {
   border: 1px solid #ccc;
   border-radius: 5px;
 }
+
 .control-group input[type="range"],
 .control-group input[type="color"] {
   margin: 10px;
 }
+
 .buttons-group button {
   margin: 10px;
   padding: 10px 20px;
@@ -104,9 +234,11 @@ h1 {
   cursor: pointer;
   transition: background 0.3s;
 }
+
 .buttons-group button:hover {
   background: #2980b9;
 }
+
 #share-buttons button {
   margin: 5px;
   padding: 8px 15px;
@@ -118,10 +250,12 @@ h1 {
   cursor: pointer;
   transition: background 0.3s;
 }
+
 #share-buttons button:hover {
   background: #27ae60;
 }
-/* تلميح للمستخدم على الجوال */
+
+/* تلميح المستخدم على الجوال */
 .mobile-hint {
   display: none;
   font-size: 12px;
@@ -131,7 +265,28 @@ h1 {
   right: 5px;
 }
 
-/* إظهار التلميح على الشاشات الصغيرة */
+/* قسم الفوتر */
+#footer-section {
+  background-color: #f9f9f9;
+  padding: 20px 0;
+  margin-top: 30px;
+  border-top: 1px solid #ccc;
+}
+
+#footer-section p {
+  margin: 5px;
+}
+
+.footer-logo {
+  width: 120px;
+  margin: 10px 0;
+}
+
+.candy-emoji {
+  font-size: 18px;
+}
+
+/* استجابة الشاشات الصغيرة */
 @media (max-width: 600px) {
   .mobile-hint {
     display: block;
