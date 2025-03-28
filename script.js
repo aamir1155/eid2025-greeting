@@ -157,16 +157,19 @@ function confirmImagePosition() {
 }
 
 function downloadImage() {
-  html2canvas(document.getElementById("canvas-container")).then(canvas => {
+  document.querySelector(".mobile-hint").style.display = "none";
+  html2canvas(document.getElementById("canvas-container"), {backgroundColor: null}).then(canvas => {
     let link = document.createElement("a");
     link.download = "معايدة_عيد_الفطر_2025.png";
-    link.href = canvas.toDataURL();
+    link.href = canvas.toDataURL("image/png");
     link.click();
+    document.querySelector(".mobile-hint").style.display = "block";
   });
 }
 
 function shareImage() {
-  html2canvas(document.getElementById("canvas-container")).then(canvas => {
+  document.querySelector(".mobile-hint").style.display = "none";
+  html2canvas(document.getElementById("canvas-container"), {backgroundColor: null}).then(canvas => {
     canvas.toBlob(blob => {
       const file = new File([blob], 'greeting.png', { type: 'image/png' });
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -177,6 +180,7 @@ function shareImage() {
       } else {
         alert("المشاركة غير مدعومة في هذا المتصفح");
       }
+      document.querySelector(".mobile-hint").style.display = "block";
     });
   });
 }
