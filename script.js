@@ -34,42 +34,43 @@ function updateFontType(font) {
 
 function updateImageZoom(zoomValue) {
   currentZoom = zoomValue;
-  if (!imageConfirmed) {
-    document.getElementById("user-image-inner").style.transform = `translate(${imageOffsetX}px, ${imageOffsetY}px) scale(${zoomValue})`;
-  } else {
+  const transform = `translate(${imageOffsetX}px, ${imageOffsetY}px) scale(${zoomValue})`;
+  document.getElementById("user-image-inner").style.transform = transform;
+  if (imageConfirmed) {
     document.getElementById("image-crop-container").style.transform = `scale(${zoomValue})`;
   }
 }
 
 function makeDraggable(el) {
-  let isDragging = false, offsetX, offsetY;
+  let isDragging = false, startX, startY;
 
-  const startDragging = e => {
+  function startDrag(e) {
     e.preventDefault();
-    isDragging = true;
     const touch = e.touches ? e.touches[0] : e;
-    offsetX = touch.clientX - el.getBoundingClientRect().left;
-    offsetY = touch.clientY - el.getBoundingClientRect().top;
-  };
+    startX = touch.clientX - el.offsetLeft;
+    startY = touch.clientY - el.offsetTop;
+    isDragging = true;
+  }
 
-  const duringDragging = e => {
+  function dragMove(e) {
     if (!isDragging) return;
     e.preventDefault();
     const touch = e.touches ? e.touches[0] : e;
-    const parentRect = el.parentElement.getBoundingClientRect();
-    el.style.left = (touch.clientX - parentRect.left - offsetX) + "px";
-    el.style.top = (touch.clientY - parentRect.top - offsetY) + "px";
-  };
+    el.style.left = `${touch.clientX - startX}px`;
+    el.style.top = `${touch.clientY - startY}px`;
+  }
 
-  const stopDragging = () => { isDragging = false; };
+  function endDrag() {
+    isDragging = false;
+  }
 
-  el.addEventListener('mousedown', startDragging);
-  document.addEventListener('mousemove', duringDragging);
-  document.addEventListener('mouseup', stopDragging);
+  el.addEventListener('mousedown', startDrag);
+  document.addEventListener('mousemove', dragMove);
+  document.addEventListener('mouseup', endDrag);
 
-  el.addEventListener('touchstart', startDragging, { passive: false });
-  document.addEventListener('touchmove', duringDragging, { passive: false });
-  document.addEventListener('touchend', stopDragging, { passive: false });
+  el.addEventListener('touchstart', startDrag, { passive: false });
+  document.addEventListener('touchmove', dragMove, { passive: false });
+  document.addEventListener('touchend', endDrag, { passive: false });
 }
 
 window.onload = () => {
@@ -79,29 +80,39 @@ window.onload = () => {
 function makeInnerImageDraggable(img) {
   let isDraggingImage = false, startX, startY;
 
-  img.onmousedown = img.ontouchstart = e => {
+  function startDrag(e) {
     if (imageConfirmed) return;
     e.preventDefault();
     const touch = e.touches ? e.touches[0] : e;
     startX = touch.clientX;
     startY = touch.clientY;
     isDraggingImage = true;
-  };
+  }
 
-  document.onmousemove = document.ontouchmove = e => {
+  function moveDrag(e) {
     if (!isDraggingImage || imageConfirmed) return;
     e.preventDefault();
     const touch = e.touches ? e.touches[0] : e;
-    let dx = touch.clientX - startX;
-    let dy = touch.clientY - startY;
+    const dx = touch.clientX - startX;
+    const dy = touch.clientY - startY;
     imageOffsetX += dx;
     imageOffsetY += dy;
     img.style.transform = `translate(${imageOffsetX}px, ${imageOffsetY}px) scale(${currentZoom})`;
     startX = touch.clientX;
     startY = touch.clientY;
-  };
+  }
 
-  document.onmouseup = document.ontouchend = () => isDraggingImage = false;
+  function endDrag() {
+    isDraggingImage = false;
+  }
+
+  img.addEventListener('mousedown', startDrag);
+  document.addEventListener('mousemove', moveDrag);
+  document.addEventListener('mouseup', endDrag);
+
+  img.addEventListener('touchstart', startDrag, { passive: false });
+  document.addEventListener('touchmove', moveDrag, { passive: false });
+  document.addEventListener('touchend', endDrag, { passive: false });
 }
 
 function uploadUserImage(event) {
@@ -145,30 +156,4 @@ function confirmImagePosition() {
   imageConfirmed = true;
   document.getElementById("user-image-inner").style.pointerEvents = "none";
   makeDraggable(document.getElementById("image-crop-container"));
-}
-
-// تحميل ومشاركة الصورة باستخدام Web Share API
-function downloadImage() {
-  html2canvas(document.getElementById("canvas-container")).then(canvas => {
-    let link = document.createElement("a");
-    link.download = "معايدة_عيد_الفطر_2025.png";
-    link.href = canvas.toDataURL();
-    link.click();
-  });
-}
-
-function shareImage() {
-  html2canvas(document.getElementById("canvas-container")).then(canvas => {
-    canvas.toBlob(blob => {
-      const filesArray = [new File([blob], 'greeting.png', { type: blob.type })];
-      if (navigator.canShare && navigator.canShare({ files: filesArray })) {
-        navigator.share({
-          files: filesArray,
-          title: 'معايدة عيد الفطر 2025'
-        });
-      } else {
-        alert("مشاركة الصورة غير مدعومة في هذا المتصفح.");
-      }
-    }, 'image/png');
-  });
 }
