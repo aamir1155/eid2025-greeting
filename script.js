@@ -37,43 +37,137 @@ function updateFontType(font) {
 
 // تحديث تكبير/تصغير الصورة المرفوعة
 function updateImageZoom(zoomValue) {
-  const userImage = document.getElementById("user-image");
-  if (userImage.style.display !== "none") {
-    userImage.style.transform = `scale(${zoomValue})`;
-  }
+  const userImageInner = document.getElementById("user-image-inner");
+  userImageInner.style.transform = `translate(${imageOffsetX}px, ${imageOffsetY}px) scale(${zoomValue})`;
+  currentZoom = zoomValue;
 }
 
-// جعل العناصر قابلة للسحب
+// لجعل العناصر قابلة للسحب (النص والإطار الدائري بعد تأكيد)
 function makeDraggable(el) {
-  el.onmousedown = function(event) {
-    let shiftX = event.clientX - el.getBoundingClientRect().left;
-    let shiftY = event.clientY - el.getBoundingClientRect().top;
+  let isDragging = false;
+  let offsetX = 0;
+  let offsetY = 0;
 
-    function moveAt(pageX, pageY) {
-      el.style.left = pageX - shiftX - el.parentElement.getBoundingClientRect().left + "px";
-      el.style.top = pageY - shiftY - el.parentElement.getBoundingClientRect().top + "px";
-    }
+  // للماوس
+  el.addEventListener('mousedown', function(e) {
+    e.preventDefault();
+    isDragging = true;
+    offsetX = e.clientX - el.getBoundingClientRect().left;
+    offsetY = e.clientY - el.getBoundingClientRect().top;
+  });
 
-    function onMouseMove(event) {
-      moveAt(event.pageX, event.pageY);
-    }
+  document.addEventListener('mousemove', function(e) {
+    if (!isDragging) return;
+    e.preventDefault();
+    let parentRect = el.parentElement.getBoundingClientRect();
+    let x = e.clientX - parentRect.left - offsetX;
+    let y = e.clientY - parentRect.top - offsetY;
+    el.style.left = x + "px";
+    el.style.top = y + "px";
+  });
 
-    document.addEventListener('mousemove', onMouseMove);
+  document.addEventListener('mouseup', function(e) {
+    isDragging = false;
+  });
 
-    document.onmouseup = function() {
-      document.removeEventListener('mousemove', onMouseMove);
-      el.onmouseup = null;
-    };
-  };
-  el.ondragstart = function() {
-    return false;
-  };
+  // للّمس على الجوال
+  el.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    isDragging = true;
+    let touch = e.touches[0];
+    offsetX = touch.clientX - el.getBoundingClientRect().left;
+    offsetY = touch.clientY - el.getBoundingClientRect().top;
+  }, { passive: false });
+
+  el.addEventListener('touchmove', function(e) {
+    if (!isDragging) return;
+    e.preventDefault();
+    let touch = e.touches[0];
+    let parentRect = el.parentElement.getBoundingClientRect();
+    let x = touch.clientX - parentRect.left - offsetX;
+    let y = touch.clientY - parentRect.top - offsetY;
+    el.style.left = x + "px";
+    el.style.top = y + "px";
+  }, { passive: false });
+
+  el.addEventListener('touchend', function(e) {
+    isDragging = false;
+  }, { passive: false });
 }
 
-// تفعيل إمكانية السحب للنص والصورة عند تحميل الصفحة
+// ---------------------------------------------------
+// آلية سحب الصورة داخل الإطار الدائري
+// ---------------------------------------------------
+let isDraggingImage = false;
+let imageOffsetX = 0;
+let imageOffsetY = 0;
+let currentZoom = 1;
+
+function makeInnerImageDraggable(img) {
+  const container = document.getElementById("image-crop-container");
+
+  // للماوس
+  img.addEventListener('mousedown', function(e) {
+    e.preventDefault();
+    isDraggingImage = true;
+    startDrag(e.clientX, e.clientY);
+  });
+
+  document.addEventListener('mousemove', function(e) {
+    if (!isDraggingImage) return;
+    e.preventDefault();
+    moveDrag(e.clientX, e.clientY);
+  });
+
+  document.addEventListener('mouseup', function(e) {
+    isDraggingImage = false;
+  });
+
+  // للّمس على الجوال
+  img.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    isDraggingImage = true;
+    let touch = e.touches[0];
+    startDrag(touch.clientX, touch.clientY);
+  }, { passive: false });
+
+  img.addEventListener('touchmove', function(e) {
+    if (!isDraggingImage) return;
+    e.preventDefault();
+    let touch = e.touches[0];
+    moveDrag(touch.clientX, touch.clientY);
+  }, { passive: false });
+
+  img.addEventListener('touchend', function(e) {
+    isDraggingImage = false;
+  }, { passive: false });
+}
+
+let startX, startY;
+
+function startDrag(clientX, clientY) {
+  startX = clientX;
+  startY = clientY;
+}
+
+function moveDrag(clientX, clientY) {
+  let dx = clientX - startX;
+  let dy = clientY - startY;
+  startX = clientX;
+  startY = clientY;
+  
+  imageOffsetX += dx;
+  imageOffsetY += dy;
+
+  const img = document.getElementById("user-image-inner");
+  img.style.transform = `translate(${imageOffsetX}px, ${imageOffsetY}px) scale(${currentZoom})`;
+}
+
+// ---------------------------------------------------
+
 window.onload = function() {
+  // تفعيل إمكانية السحب للنص
   makeDraggable(document.getElementById("text-element"));
-  makeDraggable(document.getElementById("user-image"));
 };
 
 // رفع صورة المستخدم وعرضها داخل دائرة
@@ -82,15 +176,36 @@ function uploadUserImage(event) {
   if (file) {
     const reader = new FileReader();
     reader.onload = function(e) {
-      let userImage = document.getElementById("user-image");
-      userImage.src = e.target.result;
-      userImage.style.display = "block";
-      // إعادة تعيين التكبير للصورة إلى القيمة الافتراضية (1)
+      let container = document.getElementById("image-crop-container");
+      let userImageInner = document.getElementById("user-image-inner");
+      
+      userImageInner.src = e.target.result;
+      container.style.display = "block";
+      
+      // إعادة القيم الافتراضية
       document.getElementById("image-zoom").value = 1;
-      userImage.style.transform = "scale(1)";
+      imageOffsetX = 0;
+      imageOffsetY = 0;
+      currentZoom = 1;
+      userImageInner.style.transform = "translate(0,0) scale(1)";
+      
+      // إظهار زر "تم"
+      document.getElementById("confirm-image-group").style.display = "block";
+      
+      // نجعل الصورة الداخلية قابلة للتحريك داخل الإطار
+      makeInnerImageDraggable(userImageInner);
     }
     reader.readAsDataURL(file);
   }
+}
+
+// عند الضغط على زر "تم" لإقرار موضع الصورة
+function confirmImagePosition() {
+  // إخفاء زر "تم"
+  document.getElementById("confirm-image-group").style.display = "none";
+  
+  // الآن نجعل الحاوية الدائرية نفسها قابلة للسحب
+  makeDraggable(document.getElementById("image-crop-container"));
 }
 
 // تحميل الصورة المجمعة للمعايدة باستخدام html2canvas
