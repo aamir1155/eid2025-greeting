@@ -1,7 +1,6 @@
 let selectedTemplate = "";
-var imageConfirmed = false;  // لتتبع تأكيد موضع الصورة
+var imageConfirmed = false;
 
-// اختيار القالب وعرض قسم التعديل
 function selectTemplate(templateSrc) {
   selectedTemplate = templateSrc;
   document.getElementById("template-image").src = templateSrc;
@@ -9,33 +8,30 @@ function selectTemplate(templateSrc) {
   document.getElementById("editor").style.display = "block";
 }
 
-// العودة للصفحة الرئيسية مع إعادة تحميل الإعدادات (reset)
 function goHome() {
   location.reload();
 }
 
-// تحديث النص المعروض على القالب
 function updateText() {
   const text = document.getElementById("user-text").value;
   document.getElementById("text-element").innerText = text;
 }
 
-// تغيير حجم الخط
 function updateFontSize(size) {
   document.getElementById("text-element").style.fontSize = size + "px";
 }
 
-// تغيير لون الخط
 function updateFontColor(color) {
   document.getElementById("text-element").style.color = color;
 }
 
-// تغيير نوع الخط
 function updateFontType(font) {
   document.getElementById("text-element").style.fontFamily = font;
 }
 
 let currentZoom = 1;
+let imageOffsetX = 0, imageOffsetY = 0;
+
 function updateImageZoom(zoomValue) {
   currentZoom = zoomValue;
   if (!imageConfirmed) {
@@ -80,9 +76,9 @@ window.onload = () => {
   makeDraggable(document.getElementById("text-element"));
 };
 
-let isDraggingImage = false, imageOffsetX = 0, imageOffsetY = 0;
-
 function makeInnerImageDraggable(img) {
+  let isDraggingImage = false, startX, startY;
+
   img.onmousedown = img.ontouchstart = e => {
     if (imageConfirmed) return;
     e.preventDefault();
@@ -108,7 +104,6 @@ function makeInnerImageDraggable(img) {
   document.onmouseup = document.ontouchend = () => isDraggingImage = false;
 }
 
-// (✅تم تحديثها) رفع صورة المستخدم وعرضها داخل الإطار الدائري
 function uploadUserImage(event) {
   const file = event.target.files[0];
   if (file) {
@@ -147,5 +142,3 @@ function confirmImagePosition() {
   document.getElementById("user-image-inner").style.pointerEvents = "none";
   makeDraggable(document.getElementById("image-crop-container"));
 }
-
-// بقية وظائف التحميل والمشاركة (ابقها كما هي)
