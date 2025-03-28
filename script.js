@@ -224,7 +224,7 @@ function confirmImagePosition() {
 
 // -----------------------------------------------------------------------------------
 // تحميل الصورة المجمعة للمعايدة باستخدام html2canvas
-// مع إعادة رسم المنطقة الدائرية بضبط موضعها وأبعادها بناءً على معامل التحجيم
+// مع أخذ scrollX و scrollY في الاعتبار
 function downloadImage() {
   // إخفاء تلميح السحب قبل الالتقاط
   let mobileHint = document.querySelector('.mobile-hint');
@@ -235,7 +235,7 @@ function downloadImage() {
   html2canvas(container).then(canvas => {
     let containerRect = container.getBoundingClientRect();
 
-    // أبعاد الـ canvas التي أُنشئت من html2canvas (قد تكون أكبر بسبب devicePixelRatio)
+    // أبعاد الـ canvas التي أُنشئت من html2canvas
     let cWidth = canvas.width;
     let cHeight = canvas.height;
 
@@ -247,11 +247,14 @@ function downloadImage() {
     let circElement = document.getElementById("image-crop-container");
     let circRect = circElement.getBoundingClientRect();
 
-    // حساب موضع الحاوية الدائرية على الـ canvas
-    // (استخدام الفرق بين إحداثيات الحاوية والديف الرئيسي، مع ضربها في معامل التحجيم)
-    let relX = (circRect.left - containerRect.left) * scaleX;
-    let relY = (circRect.top - containerRect.top) * scaleY;
-    let relWidth = circRect.width * scaleX; // يفترض أن العرض = الارتفاع
+    // الفرق بين إحداثيات الحاوية والديف الرئيسي، مع تعويض أي تمرير (scroll)
+    let scrollX = window.scrollX || document.documentElement.scrollLeft;
+    let scrollY = window.scrollY || document.documentElement.scrollTop;
+
+    // حساب الموضع النسبي على الـ canvas
+    let relX = (circRect.left + scrollX - (containerRect.left + scrollX)) * scaleX;
+    let relY = (circRect.top + scrollY - (containerRect.top + scrollY)) * scaleY;
+    let relWidth = circRect.width * scaleX; // دائرة: العرض = الارتفاع
 
     // إنشاء canvas مؤقتة
     let tempCanvas = document.createElement('canvas');
@@ -287,7 +290,6 @@ function downloadImage() {
     tempCtx.clearRect(relX, relY, relWidth, relWidth);
     tempCtx.drawImage(circCanvas, relX, relY);
 
-    // تحويل النتيجة إلى رابط تحميل
     let link = document.createElement("a");
     link.download = "معايدة_عيد_الفطر_2025.png";
     link.href = tempCanvas.toDataURL();
