@@ -24,28 +24,36 @@
   <div id="editor">
     <div class="template-container" id="canvas-container">
       <img id="template-image" src="" alt="القالب">
+      
       <!-- عنصر النص القابل للتحرير مع تلميح للسحب -->
-      <div id="text-element" class="draggable" contenteditable="true" style="top:50px; left:50px; font-size:24px; color:#000;">
+      <div id="text-element" class="draggable text-draggable" contenteditable="true" style="top:50px; left:50px; font-size:24px; color:#000;">
         أدخل اسمك هنا
       </div>
       <span class="mobile-hint">يمكنك سحب النص لوضعه في المكان المناسب</span>
-      <!-- صورة المستخدم المرفوعة (تظهر داخل دائرة) -->
-      <img id="user-image" src="" alt="صورة المستخدم" class="draggable circular-image" style="display:none; width:100px; height:100px; top:100px; left:100px;">
+      
+      <!-- عنصر دائري لاحتواء الصورة المرفوعة -->
+      <div id="image-crop-container" class="circular-container" style="display:none; top:100px; left:100px;">
+        <img id="user-image-inner" src="" alt="صورة المستخدم" class="user-image-inner">
+      </div>
     </div>
+    
     <div class="controls">
       <div class="control-group">
         <label>أدخل النص:</label>
         <input type="text" id="user-text" placeholder="أدخل اسمك أو نص المعايدة">
         <button onclick="updateText()">تطبيق</button>
       </div>
+      
       <div class="control-group">
         <label>حجم الخط:</label>
         <input type="range" id="font-size" min="16" max="72" value="24" onchange="updateFontSize(this.value)">
       </div>
+      
       <div class="control-group">
         <label>لون الخط:</label>
         <input type="color" id="font-color" value="#000000" onchange="updateFontColor(this.value)">
       </div>
+      
       <div class="control-group">
         <label>نوع الخط:</label>
         <select id="font-type" onchange="updateFontType(this.value)">
@@ -59,21 +67,30 @@
           <option value="'Traditional Arabic', serif">الخط التقليدي</option>
         </select>
       </div>
+      
       <div class="control-group">
         <label>رفع صورة (اختياري):</label>
         <input type="file" id="image-upload" accept="image/*" onchange="uploadUserImage(event)">
       </div>
+      
       <!-- إضافة تحكم تكبير/تصغير الصورة -->
       <div class="control-group">
         <label>تكبير الصورة:</label>
         <input type="range" id="image-zoom" min="0.5" max="2" step="0.1" value="1" onchange="updateImageZoom(this.value)">
       </div>
+      
       <div class="control-group buttons-group">
         <button onclick="downloadImage()">تحميل المعايدة</button>
         <button onclick="shareImage()">مشاركة المعايدة</button>
         <!-- زر العودة للصفحة الرئيسية -->
         <button onclick="goHome()">الصفحة الرئيسية</button>
       </div>
+      
+      <!-- زر تأكيد موضع الصورة داخل الإطار -->
+      <div class="control-group" id="confirm-image-group" style="display:none;">
+        <button onclick="confirmImagePosition()">تم</button>
+      </div>
+      
       <!-- خيارات المشاركة على وسائل التواصل -->
       <div id="share-buttons" class="control-group">
         <button onclick="shareWhatsApp()">مشاركة على واتساب</button>
@@ -83,6 +100,14 @@
       </div>
     </div>
   </div>
+  
+  <!-- قسم أسفل الصفحة -->
+  <footer id="footer-section">
+    <p>هذا البرنامج تم إنشاؤه بواسطة</p>
+    <img src="images/amir_log.jpg" alt="شعار" class="footer-logo">
+    <p><a href="https://twitter.com/aamirtechnic" target="_blank">@aamirtechnic</a></p>
+    <p>استمتعو بالعيد <span class="candy-emoji">🍬</span></p>
+  </footer>
   
   <!-- ربط ملف الجافاسكريبت -->
   <script src="script.js"></script>
