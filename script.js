@@ -102,7 +102,7 @@ function makeDraggable(el) {
   }, { passive: false });
 }
 
-// دعم السحب للنص عند تحميل الصفحة
+// دعم سحب النص عند تحميل الصفحة
 window.onload = function() {
   makeDraggable(document.getElementById("text-element"));
 };
@@ -216,30 +216,81 @@ function confirmImagePosition() {
   makeDraggable(container);
 }
 
-// تحميل الصورة المجمعة للمعايدة باستخدام html2canvas
+// تحميل الصورة المجمعة للمعايدة باستخدام html2canvas مع إعادة رسم منطقة الصورة الدائرية
 function downloadImage() {
   // إخفاء تلميح السحب قبل الالتقاط
   let mobileHint = document.querySelector('.mobile-hint');
   let originalDisplay = mobileHint.style.display;
   mobileHint.style.display = "none";
+  
   let container = document.getElementById("canvas-container");
   html2canvas(container).then(canvas => {
+    let width = canvas.width;
+    let height = canvas.height;
+    
+    // الحصول على أبعاد وموقع الحاوية الدائرية بالنسبة للوحة (canvas-container)
+    let containerElement = document.getElementById("canvas-container");
+    let circElement = document.getElementById("image-crop-container");
+    let containerRect = containerElement.getBoundingClientRect();
+    let circRect = circElement.getBoundingClientRect();
+    let relX = circRect.left - containerRect.left;
+    let relY = circRect.top - containerRect.top;
+    let relWidth = circRect.width; // يجب أن تكون مساوية للارتفاع
+    // إنشاء canvas مؤقتة
+    let tempCanvas = document.createElement('canvas');
+    tempCanvas.width = width;
+    tempCanvas.height = height;
+    let tempCtx = tempCanvas.getContext('2d');
+    
+    // أولاً، رسم الصورة الكاملة كما هي
+    tempCtx.drawImage(canvas, 0, 0);
+    
+    // الآن، إنشاء قناع دائري لمنطقة الصورة الدائرية
+    let circCanvas = document.createElement('canvas');
+    circCanvas.width = relWidth;
+    circCanvas.height = relWidth;  // دائرة: العرض = الارتفاع
+    let circCtx = circCanvas.getContext('2d');
+    circCtx.beginPath();
+    circCtx.arc(relWidth/2, relWidth/2, relWidth/2, 0, Math.PI * 2, true);
+    circCtx.closePath();
+    circCtx.clip();
+    // رسم الجزء الخاص بالحاوية الدائرية من الصورة الأصلية
+    circCtx.drawImage(canvas, relX, relY, relWidth, relWidth, 0, 0, relWidth, relWidth);
+    
+    // استبدال المنطقة الدائرية في tempCanvas بالصورة الدائرية
+    tempCtx.clearRect(relX, relY, relWidth, relWidth);
+    tempCtx.drawImage(circCanvas, relX, relY);
+    
     let link = document.createElement("a");
     link.download = "معايدة_عيد_الفطر_2025.png";
-    link.href = canvas.toDataURL();
+    link.href = tempCanvas.toDataURL();
     link.click();
+    
     // استعادة تلميح السحب بعد الالتقاط
     mobileHint.style.display = originalDisplay;
   });
 }
 
-// مشاركة المعايدة (مثال توضيحي)
+// مشاركة المعايدة: مشاركة الصورة النهائية نفسها باستخدام Web Share API (إذا كانت مدعومة)
 function shareImage() {
-  downloadImage();
-  alert("تم إنشاء الصورة، قم بمشاركتها عبر وسائل التواصل الاجتماعي");
+  html2canvas(document.getElementById("canvas-container")).then(canvas => {
+      canvas.toBlob(blob => {
+          const filesArray = [new File([blob], 'greeting.png', { type: blob.type })];
+          if (navigator.canShare && navigator.canShare({ files: filesArray })) {
+              navigator.share({
+                  files: filesArray,
+                  title: 'معايدة عيد الفطر 2025',
+                  text: 'شارك المعايدة'
+              }).then(() => console.log('تمت المشاركة بنجاح'))
+              .catch((error) => console.error('خطأ في المشاركة:', error));
+          } else {
+              alert("مشاركة الصورة غير مدعومة في هذا المتصفح.");
+          }
+      }, 'image/png');
+  });
 }
 
-// وظائف المشاركة على وسائل التواصل
+// وظائف المشاركة على وسائل التواصل (في حال عدم دعم Web Share API)
 function shareWhatsApp() {
   const url = encodeURIComponent(window.location.href);
   window.open(`https://api.whatsapp.com/send?text=${url}`, '_blank');
