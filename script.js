@@ -1,4 +1,5 @@
 let selectedTemplate = "";
+var imageConfirmed = false;  // لتعقب ما إذا تم تأكيد الصورة أم لا
 
 // اختيار القالب وعرض قسم التعديل
 function selectTemplate(templateSrc) {
@@ -8,10 +9,9 @@ function selectTemplate(templateSrc) {
   document.getElementById("editor").style.display = "block";
 }
 
-// العودة للصفحة الرئيسية (عرض قسم اختيار القالب)
+// العودة للصفحة الرئيسية مع إعادة تحميل الإعدادات (reset)
 function goHome() {
-  document.getElementById("editor").style.display = "none";
-  document.getElementById("template-selection").style.display = "flex";
+  location.reload(); // يعيد تحميل الصفحة لإعادة تعيين جميع الإعدادات
 }
 
 // تحديث النص المعروض على القالب
@@ -35,14 +35,21 @@ function updateFontType(font) {
   document.getElementById("text-element").style.fontFamily = font;
 }
 
-// تحديث تكبير/تصغير الصورة المرفوعة
+// تحديث تكبير/تصغير الصورة
 function updateImageZoom(zoomValue) {
-  const userImageInner = document.getElementById("user-image-inner");
-  userImageInner.style.transform = `translate(${imageOffsetX}px, ${imageOffsetY}px) scale(${zoomValue})`;
   currentZoom = zoomValue;
+  if (!imageConfirmed) {
+    // قبل التأكيد، نقوم بتعديل الصورة الداخلية فقط
+    const userImageInner = document.getElementById("user-image-inner");
+    userImageInner.style.transform = `translate(${imageOffsetX}px, ${imageOffsetY}px) scale(${zoomValue})`;
+  } else {
+    // بعد التأكيد، نقوم بتكبير/تصغير الحاوية الدائرية (الصورة مع الإطار)
+    const container = document.getElementById("image-crop-container");
+    container.style.transform = `scale(${zoomValue})`;
+  }
 }
 
-// لجعل العناصر قابلة للسحب (النص والإطار الدائري بعد تأكيد)
+// لجعل العناصر قابلة للسحب (النص أو الحاوية)
 function makeDraggable(el) {
   let isDragging = false;
   let offsetX = 0;
@@ -95,17 +102,18 @@ function makeDraggable(el) {
   }, { passive: false });
 }
 
-// ---------------------------------------------------
+// دعم السحب للنص عند تحميل الصفحة
+window.onload = function() {
+  makeDraggable(document.getElementById("text-element"));
+};
+
 // آلية سحب الصورة داخل الإطار الدائري
-// ---------------------------------------------------
 let isDraggingImage = false;
 let imageOffsetX = 0;
 let imageOffsetY = 0;
 let currentZoom = 1;
 
 function makeInnerImageDraggable(img) {
-  const container = document.getElementById("image-crop-container");
-
   // للماوس
   img.addEventListener('mousedown', function(e) {
     e.preventDefault();
@@ -163,14 +171,7 @@ function moveDrag(clientX, clientY) {
   img.style.transform = `translate(${imageOffsetX}px, ${imageOffsetY}px) scale(${currentZoom})`;
 }
 
-// ---------------------------------------------------
-
-window.onload = function() {
-  // تفعيل إمكانية السحب للنص
-  makeDraggable(document.getElementById("text-element"));
-};
-
-// رفع صورة المستخدم وعرضها داخل دائرة
+// رفع صورة المستخدم وعرضها داخل الإطار الدائري
 function uploadUserImage(event) {
   const file = event.target.files[0];
   if (file) {
@@ -192,7 +193,7 @@ function uploadUserImage(event) {
       // إظهار زر "تم"
       document.getElementById("confirm-image-group").style.display = "block";
       
-      // نجعل الصورة الداخلية قابلة للتحريك داخل الإطار
+      // جعل الصورة الداخلية قابلة للسحب داخل الإطار
       makeInnerImageDraggable(userImageInner);
     }
     reader.readAsDataURL(file);
@@ -203,9 +204,12 @@ function uploadUserImage(event) {
 function confirmImagePosition() {
   // إخفاء زر "تم"
   document.getElementById("confirm-image-group").style.display = "none";
-  
-  // الآن نجعل الحاوية الدائرية نفسها قابلة للسحب
-  makeDraggable(document.getElementById("image-crop-container"));
+  let container = document.getElementById("image-crop-container");
+  // إزالة الإطار الأبيض من الحاوية بعد التأكيد
+  container.style.border = "none";
+  imageConfirmed = true;
+  // جعل الحاوية الدائرية نفسها قابلة للسحب
+  makeDraggable(container);
 }
 
 // تحميل الصورة المجمعة للمعايدة باستخدام html2canvas
@@ -232,12 +236,10 @@ function shareWhatsApp() {
 }
 
 function shareInstagram() {
-  // لا يوجد رابط مشاركة مباشر لإنستقرام، يمكنك توجيه المستخدم إلى صفحة إنستقرام الخاصة بك أو عرض رسالة
   alert("يرجى نسخ الرابط ومشاركته على إنستقرام");
 }
 
 function shareSnapchat() {
-  // لا يوجد رابط مشاركة مباشر لسناب شات، يمكنك توجيه المستخدم إلى التطبيق أو عرض رسالة
   alert("يرجى نسخ الرابط ومشاركته على سناب شات");
 }
 
