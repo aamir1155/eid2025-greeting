@@ -171,7 +171,7 @@ h1 {
   border: none;
 }
 
-/* تلميح السحب (مخصص للنص والصورة) */
+/* تلميح السحب (للإرشاد) */
 .mobile-hint {
   color: red;
   font-size: 12px;
@@ -187,8 +187,9 @@ h1 {
   height: 150px;
   border-radius: 50%;
   overflow: hidden;
-  /* يتم إزالة الإطار الأبيض بعد تأكيد الصورة */
-  border: 2px solid #fff;
+  border: 2px solid #fff; /* سيتم إزالة هذا الإطار بعد التأكيد */
+  /* إضافة clip-path لضمان الشكل الدائري دائمًا */
+  clip-path: circle(50% at 50% 50%);
 }
 
 /* الصورة الداخلية داخل الحاوية */
