@@ -1,5 +1,8 @@
 let selectedTemplate = "";
 var imageConfirmed = false;
+let currentZoom = 1;
+let imageOffsetX = 0;
+let imageOffsetY = 0;
 
 function selectTemplate(templateSrc) {
   selectedTemplate = templateSrc;
@@ -28,9 +31,6 @@ function updateFontColor(color) {
 function updateFontType(font) {
   document.getElementById("text-element").style.fontFamily = font;
 }
-
-let currentZoom = 1;
-let imageOffsetX = 0, imageOffsetY = 0;
 
 function updateImageZoom(zoomValue) {
   currentZoom = zoomValue;
@@ -116,13 +116,17 @@ function uploadUserImage(event) {
         canvas.width = canvas.height = size;
 
         const ctx = canvas.getContext('2d');
-        ctx.arc(size / 2, size / 2, size / 2, 0, 2 * Math.PI);
+        ctx.beginPath();
+        ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
         ctx.clip();
 
         ctx.drawImage(img, (img.width - size) / 2, (img.height - size) / 2, size, size, 0, 0, size, size);
 
-        document.getElementById("user-image-inner").src = canvas.toDataURL();
+        const dataURL = canvas.toDataURL();
+
+        document.getElementById("user-image-inner").src = dataURL;
         document.getElementById("image-crop-container").style.display = "block";
+
         document.getElementById("image-zoom").value = currentZoom = 1;
         imageOffsetX = imageOffsetY = 0;
 
@@ -141,4 +145,30 @@ function confirmImagePosition() {
   imageConfirmed = true;
   document.getElementById("user-image-inner").style.pointerEvents = "none";
   makeDraggable(document.getElementById("image-crop-container"));
+}
+
+// تحميل ومشاركة الصورة باستخدام Web Share API
+function downloadImage() {
+  html2canvas(document.getElementById("canvas-container")).then(canvas => {
+    let link = document.createElement("a");
+    link.download = "معايدة_عيد_الفطر_2025.png";
+    link.href = canvas.toDataURL();
+    link.click();
+  });
+}
+
+function shareImage() {
+  html2canvas(document.getElementById("canvas-container")).then(canvas => {
+    canvas.toBlob(blob => {
+      const filesArray = [new File([blob], 'greeting.png', { type: blob.type })];
+      if (navigator.canShare && navigator.canShare({ files: filesArray })) {
+        navigator.share({
+          files: filesArray,
+          title: 'معايدة عيد الفطر 2025'
+        });
+      } else {
+        alert("مشاركة الصورة غير مدعومة في هذا المتصفح.");
+      }
+    }, 'image/png');
+  });
 }
