@@ -155,3 +155,28 @@ function confirmImagePosition() {
     makeDraggable(container);
   });
 }
+
+function downloadImage() {
+  html2canvas(document.getElementById("canvas-container")).then(canvas => {
+    let link = document.createElement("a");
+    link.download = "معايدة_عيد_الفطر_2025.png";
+    link.href = canvas.toDataURL();
+    link.click();
+  });
+}
+
+function shareImage() {
+  html2canvas(document.getElementById("canvas-container")).then(canvas => {
+    canvas.toBlob(blob => {
+      const file = new File([blob], 'greeting.png', { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        navigator.share({
+          files: [file],
+          title: 'معايدة عيد الفطر 2025'
+        });
+      } else {
+        alert("المشاركة غير مدعومة في هذا المتصفح");
+      }
+    });
+  });
+}
