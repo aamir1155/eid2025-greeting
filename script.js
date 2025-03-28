@@ -1,5 +1,5 @@
 let selectedTemplate = "";
-var imageConfirmed = false;  // لتعقب ما إذا تم تأكيد الصورة أم لا
+var imageConfirmed = false;  // لتتبع تأكيد موضع الصورة
 
 // اختيار القالب وعرض قسم التعديل
 function selectTemplate(templateSrc) {
@@ -11,7 +11,7 @@ function selectTemplate(templateSrc) {
 
 // العودة للصفحة الرئيسية مع إعادة تحميل الإعدادات (reset)
 function goHome() {
-  location.reload(); // يعيد تحميل الصفحة لإعادة تعيين جميع الإعدادات
+  location.reload(); // يعيد تحميل الصفحة بالكامل لإعادة تعيين الإعدادات
 }
 
 // تحديث النص المعروض على القالب
@@ -39,17 +39,17 @@ function updateFontType(font) {
 function updateImageZoom(zoomValue) {
   currentZoom = zoomValue;
   if (!imageConfirmed) {
-    // قبل التأكيد، نقوم بتعديل الصورة الداخلية فقط
+    // قبل التأكيد، تعديل الصورة الداخلية فقط
     const userImageInner = document.getElementById("user-image-inner");
     userImageInner.style.transform = `translate(${imageOffsetX}px, ${imageOffsetY}px) scale(${zoomValue})`;
   } else {
-    // بعد التأكيد، نقوم بتكبير/تصغير الحاوية الدائرية (الصورة مع الإطار)
+    // بعد التأكيد، تكبير/تصغير الحاوية الدائرية ككل
     const container = document.getElementById("image-crop-container");
     container.style.transform = `scale(${zoomValue})`;
   }
 }
 
-// لجعل العناصر قابلة للسحب (النص أو الحاوية)
+// جعل العناصر قابلة للسحب (النص أو الحاوية قبل التأكيد)
 function makeDraggable(el) {
   let isDragging = false;
   let offsetX = 0;
@@ -77,7 +77,7 @@ function makeDraggable(el) {
     isDragging = false;
   });
 
-  // للّمس على الجوال
+  // للأجهزة اللمسية
   el.addEventListener('touchstart', function(e) {
     e.preventDefault();
     isDragging = true;
@@ -107,7 +107,7 @@ window.onload = function() {
   makeDraggable(document.getElementById("text-element"));
 };
 
-// آلية سحب الصورة داخل الإطار الدائري
+// آلية سحب الصورة داخل الإطار الدائري (قبل التأكيد)
 let isDraggingImage = false;
 let imageOffsetX = 0;
 let imageOffsetY = 0;
@@ -116,6 +116,7 @@ let currentZoom = 1;
 function makeInnerImageDraggable(img) {
   // للماوس
   img.addEventListener('mousedown', function(e) {
+    if (imageConfirmed) return; // منع السحب بعد التأكيد
     e.preventDefault();
     isDraggingImage = true;
     startDrag(e.clientX, e.clientY);
@@ -123,6 +124,7 @@ function makeInnerImageDraggable(img) {
 
   document.addEventListener('mousemove', function(e) {
     if (!isDraggingImage) return;
+    if (imageConfirmed) return;
     e.preventDefault();
     moveDrag(e.clientX, e.clientY);
   });
@@ -131,8 +133,9 @@ function makeInnerImageDraggable(img) {
     isDraggingImage = false;
   });
 
-  // للّمس على الجوال
+  // للأجهزة اللمسية
   img.addEventListener('touchstart', function(e) {
+    if (imageConfirmed) return;
     e.preventDefault();
     isDraggingImage = true;
     let touch = e.touches[0];
@@ -141,6 +144,7 @@ function makeInnerImageDraggable(img) {
 
   img.addEventListener('touchmove', function(e) {
     if (!isDraggingImage) return;
+    if (imageConfirmed) return;
     e.preventDefault();
     let touch = e.touches[0];
     moveDrag(touch.clientX, touch.clientY);
@@ -152,12 +156,10 @@ function makeInnerImageDraggable(img) {
 }
 
 let startX, startY;
-
 function startDrag(clientX, clientY) {
   startX = clientX;
   startY = clientY;
 }
-
 function moveDrag(clientX, clientY) {
   let dx = clientX - startX;
   let dy = clientY - startY;
@@ -166,7 +168,7 @@ function moveDrag(clientX, clientY) {
   
   imageOffsetX += dx;
   imageOffsetY += dy;
-
+  
   const img = document.getElementById("user-image-inner");
   img.style.transform = `translate(${imageOffsetX}px, ${imageOffsetY}px) scale(${currentZoom})`;
 }
@@ -208,18 +210,26 @@ function confirmImagePosition() {
   // إزالة الإطار الأبيض من الحاوية بعد التأكيد
   container.style.border = "none";
   imageConfirmed = true;
-  // جعل الحاوية الدائرية نفسها قابلة للسحب
+  // تعطيل سحب الصورة الداخلية بعد التأكيد
+  document.getElementById("user-image-inner").style.pointerEvents = "none";
+  // تمكين سحب الحاوية الدائرية ككل داخل القالب
   makeDraggable(container);
 }
 
 // تحميل الصورة المجمعة للمعايدة باستخدام html2canvas
 function downloadImage() {
+  // إخفاء تلميح السحب قبل الالتقاط
+  let mobileHint = document.querySelector('.mobile-hint');
+  let originalDisplay = mobileHint.style.display;
+  mobileHint.style.display = "none";
   let container = document.getElementById("canvas-container");
   html2canvas(container).then(canvas => {
     let link = document.createElement("a");
     link.download = "معايدة_عيد_الفطر_2025.png";
     link.href = canvas.toDataURL();
     link.click();
+    // استعادة تلميح السحب بعد الالتقاط
+    mobileHint.style.display = originalDisplay;
   });
 }
 
