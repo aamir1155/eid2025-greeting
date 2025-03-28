@@ -57,6 +57,7 @@
       <div class="control-group">
         <label>نوع الخط:</label>
         <select id="font-type" onchange="updateFontType(this.value)">
+          <!-- الخطوط الأساسية -->
           <option value="Arial">Arial</option>
           <option value="Tahoma">Tahoma</option>
           <option value="Times New Roman">Times New Roman</option>
@@ -65,6 +66,23 @@
           <option value="'Ruqaa', sans-serif">الرقعة</option>
           <option value="'Diwan', serif">خط الديوان</option>
           <option value="'Traditional Arabic', serif">الخط التقليدي</option>
+          <!-- الخطوط المخصصة المرفوعة -->
+          <option value="SadokartBold">SadokartBold</option>
+          <option value="AbdoFree">AbdoFree</option>
+          <option value="ALMohanadBold">ALMohanadBold</option>
+          <option value="AlsamtDiwani">AlsamtDiwani</option>
+          <option value="AlSharkTitleLight">AlSharkTitleLight</option>
+          <option value="ArefRuqaaBold">ArefRuqaaBold</option>
+          <option value="ArefRuqaaRegular">ArefRuqaaRegular</option>
+          <option value="BArshia">BArshia</option>
+          <option value="DiwanyEdited">DiwanyEdited</option>
+          <option value="HSNLayan">HSNLayan</option>
+          <option value="KhalaadAlArabeh">KhalaadAlArabeh</option>
+          <option value="Mohareb">Mohareb</option>
+          <option value="Rakkas">Rakkas</option>
+          <option value="ReemKufiVariable">ReemKufiVariable</option>
+          <option value="SKRHEAD2Outlined">SKRHEAD2Outlined</option>
+          <option value="SultanFree">SultanFree</option>
         </select>
       </div>
       
@@ -73,10 +91,15 @@
         <input type="file" id="image-upload" accept="image/*" onchange="uploadUserImage(event)">
       </div>
       
-      <!-- إضافة تحكم تكبير/تصغير الصورة -->
+      <!-- تحكم تكبير/تصغير الصورة مع الإطار -->
       <div class="control-group">
         <label>تكبير الصورة:</label>
         <input type="range" id="image-zoom" min="0.5" max="2" step="0.1" value="1" onchange="updateImageZoom(this.value)">
+      </div>
+      
+      <!-- زر "تم" لتأكيد موضع الصورة يظهر تحت تحكم التكبير -->
+      <div class="control-group" id="confirm-image-group" style="display:none;">
+        <button onclick="confirmImagePosition()">تم</button>
       </div>
       
       <div class="control-group buttons-group">
@@ -84,11 +107,6 @@
         <button onclick="shareImage()">مشاركة المعايدة</button>
         <!-- زر العودة للصفحة الرئيسية -->
         <button onclick="goHome()">الصفحة الرئيسية</button>
-      </div>
-      
-      <!-- زر تأكيد موضع الصورة داخل الإطار -->
-      <div class="control-group" id="confirm-image-group" style="display:none;">
-        <button onclick="confirmImagePosition()">تم</button>
       </div>
       
       <!-- خيارات المشاركة على وسائل التواصل -->
