@@ -216,7 +216,7 @@ function confirmImagePosition() {
   makeDraggable(container);
 }
 
-// تحميل الصورة المجمعة للمعايدة باستخدام html2canvas مع إعادة رسم منطقة الصورة الدائرية
+// تحميل الصورة المجمعة للمعايدة باستخدام html2canvas مع إعادة رسم المنطقة الدائرية
 function downloadImage() {
   // إخفاء تلميح السحب قبل الالتقاط
   let mobileHint = document.querySelector('.mobile-hint');
@@ -228,27 +228,25 @@ function downloadImage() {
     let width = canvas.width;
     let height = canvas.height;
     
-    // الحصول على أبعاد وموقع الحاوية الدائرية بالنسبة للوحة (canvas-container)
-    let containerElement = document.getElementById("canvas-container");
+    // استخدام offsetLeft/Top/Width للحصول على موقع وحجم الحاوية الدائرية بالنسبة لـ canvas-container
     let circElement = document.getElementById("image-crop-container");
-    let containerRect = containerElement.getBoundingClientRect();
-    let circRect = circElement.getBoundingClientRect();
-    let relX = circRect.left - containerRect.left;
-    let relY = circRect.top - containerRect.top;
-    let relWidth = circRect.width; // يجب أن تكون مساوية للارتفاع
+    let relX = circElement.offsetLeft;
+    let relY = circElement.offsetTop;
+    let relWidth = circElement.offsetWidth;
+    
     // إنشاء canvas مؤقتة
     let tempCanvas = document.createElement('canvas');
     tempCanvas.width = width;
     tempCanvas.height = height;
     let tempCtx = tempCanvas.getContext('2d');
     
-    // أولاً، رسم الصورة الكاملة كما هي
+    // رسم الصورة الكاملة كما هي
     tempCtx.drawImage(canvas, 0, 0);
     
-    // الآن، إنشاء قناع دائري لمنطقة الصورة الدائرية
+    // إنشاء canvas للمجال الدائري
     let circCanvas = document.createElement('canvas');
     circCanvas.width = relWidth;
-    circCanvas.height = relWidth;  // دائرة: العرض = الارتفاع
+    circCanvas.height = relWidth;
     let circCtx = circCanvas.getContext('2d');
     circCtx.beginPath();
     circCtx.arc(relWidth/2, relWidth/2, relWidth/2, 0, Math.PI * 2, true);
