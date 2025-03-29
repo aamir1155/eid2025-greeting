@@ -12,7 +12,7 @@
   <!-- نص إضافي للمستخدم -->
   <p class="instruction">اختر القالب المناسب</p>
   
-  <!-- قسم اختيار القالب -->
+   <!-- قسم اختيار القالب -->
   <div id="template-selection">
     <img src="images/3.png" alt="قالب 1" class="template-option" onclick="selectTemplate('images/3.png')">
     <img src="images/5.png" alt="قالب 2" class="template-option" onclick="selectTemplate('images/5.png')">
@@ -134,5 +134,65 @@
   <script src="script.js"></script>
   <!-- تضمين مكتبة html2canvas لالتقاط المحتوى كصورة -->
   <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<!-- زر تعليمات الاستخدام -->
+<button id="help-btn" style="position: fixed; bottom: 10px; left: 10px; padding: 10px 15px; border-radius: 8px; background-color: #007BFF; color: white; border: none; cursor: pointer; z-index: 10000;">
+  تعليمات الاستخدام
+</button>
+
+<!-- نافذة التعليمات -->
+<div id="help-modal" style="
+  display: none;
+  position: fixed;
+  top: 0; left: 0; 
+  width: 100%; height: 100%;
+  background-color: rgba(0,0,0,0.6);
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+  text-align: right;
+  direction: rtl;
+">
+
+  <div style="
+    background-color: white;
+    padding: 20px;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+    color: #333;
+  ">
+    <h2>تعليمات الاستخدام</h2>
+    <ul>
+      <li>اختر أحد القوالب الظاهرة للبدء.</li>
+      <li>أدخل الاسم، ثم حرّكه إلى المكان المناسب داخل القالب.</li>
+      <li>يمكنك رفع صورة من جهازك، وتحريكها داخل الإطار.</li>
+      <li>بعد الضغط على "تم"، يمكنك تحريك الإطار بالكامل وتكبيره أو تصغيره.</li>
+      <li>اضغط على "تحميل المعايدة" لتنزيل التصميم، أو "مشاركة المعايدة" لمشاركته.</li>
+      <li>اضغط "الصفحة الرئيسية" للبدء من جديد.</li>
+    </ul>
+
+    <button id="close-help-btn" style="margin-top: 10px; background-color: #dc3545; color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer;">
+      إغلاق
+    </button>
+  </div>
+</div>
+
+<!-- سكربت التفاعل مع الزر -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const helpBtn = document.getElementById("help-btn");
+    const helpModal = document.getElementById("help-modal");
+    const closeBtn = document.getElementById("close-help-btn");
+
+    helpBtn.addEventListener("click", function () {
+      helpModal.style.display = "flex";
+    });
+
+    closeBtn.addEventListener("click", function () {
+      helpModal.style.display = "none";
+    });
+  });
+</script>
+
 </body>
 </html>
