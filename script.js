@@ -34,12 +34,18 @@ function updateFontType(font) {
 
 function updateImageZoom(zoomValue) {
   currentZoom = zoomValue;
-  const transform = `translate(${imageOffsetX}px, ${imageOffsetY}px) scale(${zoomValue})`;
-  document.getElementById("user-image-inner").style.transform = transform;
-  if (imageConfirmed) {
+
+  if (!imageConfirmed) {
+    // قبل التأكيد (قبل الضغط على تم) الصورة تتحرك وتكبر وتصغر
+    const transform = `translate(${imageOffsetX}px, ${imageOffsetY}px) scale(${zoomValue})`;
+    document.getElementById("user-image-inner").style.transform = transform;
+  } else {
+    // بعد التأكيد (بعد الضغط على تم) الإطار فقط يتغير حجمه والصورة ثابتة
     document.getElementById("image-crop-container").style.transform = `scale(${zoomValue})`;
+    document.getElementById("user-image-inner").style.transform = "none";
   }
 }
+
 
 function makeDraggable(el) {
   let isDragging = false, startX, startY;
@@ -137,35 +143,84 @@ function uploadUserImage(event) {
 
 function confirmImagePosition() {
   const container = document.getElementById("image-crop-container");
-  html2canvas(container, { backgroundColor: null }).then(canvas => {
-    const ctx = canvas.getContext('2d');
-    const size = canvas.width;
-    ctx.globalCompositeOperation = 'destination-in';
-    ctx.beginPath();
-    ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
-    ctx.closePath();
-    ctx.fill();
+const innerImage = document.getElementById("user-image-inner");
+const rect = container.getBoundingClientRect();
 
-    const dataURL = canvas.toDataURL();
-    document.getElementById("user-image-inner").src = dataURL;
-    imageConfirmed = true;
-    document.getElementById("confirm-image-group").style.display = "none";
-    container.style.border = "none";
-    document.getElementById("user-image-inner").style.pointerEvents = "none";
-    makeDraggable(container);
-  });
+html2canvas(container, {
+  backgroundColor: null,
+  scale: 2,
+  useCORS: true,
+  allowTaint: true
+}).then(canvas => {
+  const size = Math.min(rect.width, rect.height) * 2; 
+  const circCanvas = document.createElement('canvas');
+  circCanvas.width = size;
+  circCanvas.height = size;
+
+  const ctx = circCanvas.getContext('2d');
+
+  ctx.beginPath();
+  ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2, true);
+  ctx.closePath();
+  ctx.clip();
+
+  ctx.drawImage(
+    canvas,
+    0, 0, canvas.width, canvas.height,
+    0, 0, size, size
+  );
+
+  const dataURL = circCanvas.toDataURL();
+  innerImage.src = dataURL;
+
+  imageConfirmed = true;
+  document.getElementById("confirm-image-group").style.display = "none";
+  container.style.border = "none";
+  innerImage.style.transform = "none";
+  innerImage.style.pointerEvents = "none";
+
+  makeDraggable(container);
+});
+
 }
 
 function downloadImage() {
+  // إخفاء النص الإرشادي قبل التحميل
   document.querySelector(".mobile-hint").style.display = "none";
-  html2canvas(document.getElementById("canvas-container"), {backgroundColor: null}).then(canvas => {
+
+  const container = document.getElementById("canvas-container");
+
+  html2canvas(container, {
+    backgroundColor: null,
+    scale: 2,   // لتحسين الجودة
+    useCORS: true,
+    allowTaint: true
+  }).then(canvas => {
+    const ctx = canvas.getContext('2d');
+    
+    // إزالة الإطار الأبيض أو الشفاف
+    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imgData.data;
+
+    // تنظيف البيكسلات البيضاء/الشفافة من الأطراف
+    for (let i = 0; i < data.length; i += 4) {
+      if (data[i + 3] < 255) { // بكسلات شفافة أو شبه شفافة
+        data[i + 3] = 0; // جعلها شفافة بالكامل
+      }
+    }
+    ctx.putImageData(imgData, 0, 0);
+
+    // تحميل الصورة
     let link = document.createElement("a");
     link.download = "معايدة_عيد_الفطر_2025.png";
     link.href = canvas.toDataURL("image/png");
     link.click();
+
+    // إعادة إظهار النص الإرشادي بعد التحميل
     document.querySelector(".mobile-hint").style.display = "block";
   });
 }
+
 
 function shareImage() {
   document.querySelector(".mobile-hint").style.display = "none";
@@ -183,4 +238,5 @@ function shareImage() {
       document.querySelector(".mobile-hint").style.display = "block";
     });
   });
+
 }
